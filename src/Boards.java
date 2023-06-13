@@ -52,8 +52,8 @@ public class Boards extends JPanel implements ActionListener {
     //Initialize Game
     public void initGame(){
         DOTS = 3;
-        x[0] = 50;
-        y[0] = 50;
+        x[0] = 150;
+        y[0] = 150;
         for(int i=0;i<DOTS;i++){
             x[i] = x[0]+DOT_SIZE*i;
             y[i] = y[0];
