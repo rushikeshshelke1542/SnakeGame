@@ -14,8 +14,8 @@ public class Boards extends JPanel implements ActionListener {
 
     int DOTS;
 
-    int x[] = new int[MAX_DOTS];
-    int y[] = new int [MAX_DOTS];
+    int[] x = new int[MAX_DOTS];
+    int[] y = new int [MAX_DOTS];
 
     int apple_x;
     int apple_y;
@@ -24,7 +24,7 @@ public class Boards extends JPanel implements ActionListener {
 
     Timer timer;
 
-    int DELAY = 300;
+    int DELAY = 150;
 
     boolean directionLeft = true;
     boolean directionRight = false;
@@ -32,6 +32,8 @@ public class Boards extends JPanel implements ActionListener {
     boolean directionUp = false;
 
     boolean directionDown = false;
+
+    boolean inGame = true;
 
 
     Boards(){
@@ -83,17 +85,24 @@ public class Boards extends JPanel implements ActionListener {
 
     //draw image
     public void doDrawing(Graphics g){
-        g.drawImage(apple, apple_x, apple_y, this);
+       if(inGame){
+           g.drawImage(apple, apple_x, apple_y, this);
 
-        for(int i=0;i<DOTS;i++){
-            if(i==0){
-                g.drawImage(head, x[0], y[0], this);
-            }
-            else{
+           for(int i=0;i<DOTS;i++){
+               if(i==0){
+                   g.drawImage(head, x[0], y[0], this);
+               }
+               else{
 
-                g.drawImage(body, x[i], y[i], this);
-            }
-        }
+                   g.drawImage(body, x[i], y[i], this);
+               }
+           }
+       }
+       else{
+
+           gameOver(g);
+           timer.stop();
+       }
     }
 
     //randomize the location of apple
@@ -103,9 +112,41 @@ public class Boards extends JPanel implements ActionListener {
         apple_y = (int) (Math.random() * 39) * 10;
     }
 
+    public void checkCollision(){
+
+        for(int i=1;i<DOTS;i++){
+            if (i > 4 && x[0] == x[i] && y[0] == y[i]) {
+                inGame = false;
+
+            }
+        }
+
+        if(x[0]<0){
+            inGame = false;
+        }
+
+        if(x[0]>=B_WIDTH){
+            inGame = false;
+        }
+
+        if(y[0]<0){
+            inGame = false;
+        }
+
+        if(y[0]>=B_HEIGHT){
+            inGame = false;
+        }
+
+
+    }
+
     @Override
     public void actionPerformed(ActionEvent actionEvent){
-        move();
+        if(inGame){
+            checkApple();
+            checkCollision();
+            move();
+        }
         repaint();
     }
 
@@ -133,8 +174,33 @@ public class Boards extends JPanel implements ActionListener {
         }
     }
 
-    //control using key
+    //make snake eat apple
+    public void checkApple(){
+        if(apple_x == x[0] && apple_y == y[0]){
+            DOTS++;
+            locateApple();
+        }
+    }
 
+    //game over message and score
+
+    public void gameOver(Graphics g){
+
+        String msg = "Game Over";
+        int score = (DOTS-3) * 100;
+        String scoremsg = "Score: "+ score;
+        Font small = new Font("Helvetica", Font.BOLD, 14);
+        FontMetrics fontMetrics = getFontMetrics(small);
+
+        g.setColor(Color.WHITE);
+        g.setFont(small);
+        g.drawString(msg, (B_WIDTH-fontMetrics.stringWidth(msg))/2,B_HEIGHT/4);
+        g.drawString(scoremsg, (B_WIDTH-fontMetrics.stringWidth(scoremsg))/2,3*(B_HEIGHT/4));
+
+
+    }
+
+    //control using key
     private class TAdapter extends KeyAdapter{
 
         @Override
